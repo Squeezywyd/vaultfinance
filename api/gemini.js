@@ -66,6 +66,9 @@ Format your response with clear sections using headers (##). Be encouraging and 
     if (!geminiRes.ok) {
       const errBody = await geminiRes.text();
       console.error('Gemini API error:', geminiRes.status, errBody);
+      if (geminiRes.status === 429) {
+        return res.status(429).json({ error: 'Rate limit reached. Please wait a minute and try again.' });
+      }
       return res.status(502).json({ error: `Gemini API error: ${geminiRes.status}` });
     }
 

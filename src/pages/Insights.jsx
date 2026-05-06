@@ -13,9 +13,10 @@ function SkeletonCard() {
 }
 
 export default function Insights({ thisMonthTxns }) {
-  const [loading,  setLoading]  = useState(false);
-  const [insights, setInsights] = useState(null);
-  const [error,    setError]    = useState(null);
+  const [loading,   setLoading]   = useState(false);
+  const [insights,  setInsights]  = useState(null);
+  const [error,     setError]     = useState(null);
+  const [cooldown,  setCooldown]  = useState(0);
 
   const month = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const income   = thisMonthTxns.filter(t => t.type === 'income').reduce((s, t)  => s + t.amount, 0);
@@ -43,6 +44,15 @@ export default function Insights({ thisMonthTxns }) {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
+        if (res.status === 429) {
+          let secs = 60;
+          setCooldown(secs);
+          const timer = setInterval(() => {
+            secs -= 1;
+            setCooldown(secs);
+            if (secs <= 0) clearInterval(timer);
+          }, 1000);
+        }
         throw new Error(data.error || `Server error ${res.status}`);
       }
 
@@ -102,7 +112,7 @@ export default function Insights({ thisMonthTxns }) {
         {!loading && !insights && (
           <button
             onClick={generate}
-            disabled={thisMonthTxns.length === 0}
+            disabled={thisMonthTxns.length === 0 || cooldown > 0}
             className="w-full py-4 rounded-2xl flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
             style={{
               background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.15))',
@@ -118,7 +128,9 @@ export default function Insights({ thisMonthTxns }) {
             </div>
             <div className="text-left">
               <p className="text-sm font-bold text-slate-200">Generate Insights</p>
-              <p className="text-[10px] text-slate-500">Powered by Gemini 2.0 Flash</p>
+              <p className="text-[10px] text-slate-500">
+                {cooldown > 0 ? `Rate limited — retry in ${cooldown}s` : 'Powered by Gemini 2.0 Flash'}
+              </p>
             </div>
           </button>
         )}
