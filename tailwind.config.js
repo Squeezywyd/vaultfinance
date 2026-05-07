@@ -53,6 +53,7 @@ export default {
         'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
         'bar-fill':   'barFill 0.8s cubic-bezier(0.34,1.56,0.64,1) both',
         'ring-draw':  'ringDraw 1s cubic-bezier(0.34,1.56,0.64,1) both',
+        'shake':      'shake 0.4s cubic-bezier(0.36,0.07,0.19,0.97) both',
       },
       keyframes: {
         fadeUp:    { from: { opacity: 0, transform: 'translateY(12px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
@@ -62,6 +63,12 @@ export default {
         pulseGlow: { '0%,100%': { opacity: 0.4 }, '50%': { opacity: 0.8 } },
         barFill:   { from: { width: '0%' } },
         ringDraw:  { from: { strokeDashoffset: '999' } },
+        shake: {
+          '10%, 90%': { transform: 'translateX(-2px)' },
+          '20%, 80%': { transform: 'translateX(4px)' },
+          '30%, 50%, 70%': { transform: 'translateX(-6px)' },
+          '40%, 60%': { transform: 'translateX(6px)' },
+        },
       },
       transitionTimingFunction: {
         'spring': 'cubic-bezier(0.34, 1.56, 0.64, 1)',

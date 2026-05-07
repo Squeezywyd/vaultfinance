@@ -1,16 +1,29 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useFinanceData }    from './hooks/useFinanceData';
 import { useInvestments }    from './hooks/useInvestments';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import BottomNav             from './components/BottomNav';
+import SetupScreen           from './components/SetupScreen';
+import LockScreen            from './components/LockScreen';
 import Dashboard             from './pages/Dashboard';
 import Transactions          from './pages/Transactions';
 import Investments           from './pages/Investments';
 import BudgetGoals           from './pages/BudgetGoals';
 import Insights              from './pages/Insights';
 
-export default function App() {
+function AppShell() {
+  const { status } = useAuth();
   const financeData    = useFinanceData();
   const investmentData = useInvestments();
+
+  if (status === 'loading') return (
+    <div className="fixed inset-0 bg-[#07070f] flex items-center justify-center">
+      <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+    </div>
+  );
+
+  if (status === 'setup')  return <SetupScreen />;
+  if (status === 'locked') return <LockScreen />;
 
   return (
     <div className="flex flex-col h-screen max-w-md mx-auto bg-[#07070f] overflow-hidden relative">
@@ -42,5 +55,13 @@ export default function App() {
         <BottomNav />
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppShell />
+    </AuthProvider>
   );
 }
